@@ -2,26 +2,30 @@ name: Daily Automated Commit
 
 on:
   schedule:
-    # Runs once per day at 10:30 UTC (Change if needed)
+    # Runs once per day at 10:30 UTC (specific time, no wildcards)
     - cron: '30 10 * * *'
-  workflow_dispatch:   # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   daily-commit:
     runs-on: ubuntu-latest
 
+    # REQUIRED for pushing commits
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Git
+      - name: Setup Git identity
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "21f2000140@ds.study.iitm.ac.in"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "21f2000140@ds.study.iitm.ac.in"
 
       - name: Daily commit by 21f2000140@ds.study.iitm.ac.in
         run: |
-          echo "Last updated on $(date)" >> daily-update.txt
+          echo "Last updated on $(date -u)" >> daily-update.txt
           git add daily-update.txt
-          git commit -m "Automated daily update on $(date)" || echo "No changes to commit"
-          git push
+          git commit -m "Automated daily update on $(date -u)"
+          git push origin HEAD
